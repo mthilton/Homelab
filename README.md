@@ -2,7 +2,7 @@
 
 This repo describes what services I run in my homelab and how everything works. This repo serves to document my work and showcase it to anybody curious.
 
-### Network Stack {#Network}
+## Network Stack {#Network}
 
 The first thing I want to talk about is the network stack. I've learned that homelabbing is like 70% services and 30% networking. Without the network there is no way for any of these services to communicate. 
 
@@ -10,7 +10,7 @@ The first thing I want to talk about is the network stack. I've learned that hom
 
 I have internet coming from the ISP piped directly to my router. Then from the router I go directly into an unmanaged 2.5 Gig switch. This connects my two computers and two server to the internet. All links are 2.5 Gig links except for the Pi and one from Server 1. DNS is handled by [Pi-Hole](#DNS_Stack) and [Unbound](#DNS_Stack). DHCP is handled by [Windows Server 2022](#WindowsServer). In order to access all of my services, I use [Nginx](#Nginx) to route all of my service traffic to the proper endpoint. Finally, my mobile devices, such as my phone and laptop, are tunneled in though a private [WireGuard Virtual Private Network](#Wireguard). 
 
-### Services
+## Services
 
 While I have a lot going on in the homelab, I am only hosting a few Services:
 
@@ -30,22 +30,22 @@ These are a list of Services that I may add in the future:
    - Opencloud
    - TimeMachine Backup
 
-### DNS Stack {#DNS_Stack}
+## DNS Stack {#DNS_Stack}
 
 In my homelab I have a different DNS's running. The primary DNS is Pi-Hole, an ad-blocking DNS Server that sinks known ad cdn domains. Since the requests for these sites never reach the internet, the website/program is unable to load their ad. Then to handle all requests that are not in the DNS cache we use Unbound. This is a Recursive DNS that we seek out the Authoritative Name Server for the requested Name. We could use Google or Cloudflares DNS server for unknown names but using Unbound will prevent those services from creating profiles on our searches. Finally, we use DuckDNS as our dynamic DNS provider. The main reason I chose this is becuase I was not ready to purchase a domain and use Cloudflare's DDNS service to provide real valid SSL certificates for the Names that I create for the different services on my homelab. 
 
-##### Pi-Hole Configuration
+### Pi-Hole Configuration
 
 
-### Virtualizaion and Contaninerization 
+## Virtualizaion and Contaninerization 
 
 In this homelab, I utilize both virtualization and containerization. On Server 1, the host OS is Proxmox. This hypervisor has three Virtual Machines: TrueNAS, Debian, and Windows Server 2022. TrueNAS contains all the volumes for mass storage. Debian is the host operating system for all of my Docker containers and the host that iVentoy is running on. Windows Server is for hosting my DHCP server.
 
-##### Server Hardware
+### Server Hardware
 
 The two servers in the Homelab are run on very different hardware. At first I started with just a few Raspberry Pi's. Now I only have the Pi 5 deployed. The Pi is used for the DNS stack and Wireguard. For the other server, I have a Dell Optiplex 9020 with a few hardware modifcations. First, the CPU is upgraded to the 4790. The RAM has been upgraded to the maximum 32 GB that Dell supports. There is a 2.5 Gigabit network card. Finally, I added an HBA card that will be passed into the NAS VM.  
 
-##### Virtualization with Proxmox
+### Virtualization with Proxmox
 
 Before I installed Proxmox, I went into the BIOS and ensured that the following options were selected:
 
@@ -71,7 +71,7 @@ Finally I added my ssh key for my PC to the server and disabled SSH with Passwor
 
 You can optionally prevent root login by setting `PermitRootLogin` to `No`. On this server I did not do that since I only have the root user account and there is no way to log into this computer without my ssh key. Furthermore this machine is not directly accessable from the web so in this case it should not be an issue. On all other servers I did set this option to no.
 
-##### Containerization with Docker
+### Containerization with Docker
 
 First we need to make the VM that will be the host for docker. While I am aware that Proxmox supports LXC contianers, I wanted to learn more about Docker. This is the reason I chose to use Docker inside a VM. 
 
