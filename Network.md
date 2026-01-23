@@ -1,10 +1,10 @@
-# Network Stack {#Network_Stack}
+# Network Stack 
 
 The first thing I want to talk about is the network stack. I've learned that homelabbing is like 70% services and 30% networking. Without the network there is no way for any of these services to communicate. 
 
 ![Network Diagram](./img/NetworkDiagram.png "Network Diagram")
 
-I have internet coming from the ISP piped directly to my router. Then from the router I go directly into an unmanaged 2.5 Gig switch. This connects my two computers and two server to the internet. All links are 2.5 Gig links except for the Pi and one from Server 1. DNS is handled by [Pi-Hole](#DNS_Stack) and [Unbound](#DNS_Stack). DHCP is handled by [Windows Server 2022](#WindowsServer). In order to access all of my services, I use [Nginx](#Nginx) to route all of my service traffic to the proper endpoint. Finally, my mobile devices, such as my phone and laptop, are tunneled in though a private [WireGuard Virtual Private Network](#Wireguard). 
+I have internet coming from the ISP piped directly to my router. Then from the router I go directly into an unmanaged 2.5 Gig switch. This connects my two computers and two server to the internet. All links are 2.5 Gig links except for the Pi and one from the [9020](./Hardware.md#dell). DNS is handled by [Pi-Hole](#DNS_Stack) and [Unbound](#DNS_Stack). DHCP is handled by [Windows Server 2022](#WindowsServer). In order to access all of my services, I use [Nginx](#Nginx) to route all of my service traffic to the proper endpoint. Finally, my mobile devices, such as my phone and laptop, are tunneled in though a private [WireGuard Virtual Private Network](#Wireguard). 
 
 ## DNS Stack
 
@@ -164,3 +164,6 @@ services:
 ```
 
 I would reccomend setting your PUID/GUID to be your user profile, it will make access a lot easier.
+
+***
+Return to [Readme](./README.md)

@@ -14,7 +14,7 @@ NIC_Config: Enabled      # Ensures the Network interface card (NIC) is avalible 
 
 Then once I had Proxmox installed, I added `intel_iommu=on` to the grub command line arguments. This way, I can pass the network card and HBA to the NAS VM. To make this changed I edited `/etc/default/grub`:
 
-```json
+```yaml
 GRUB_CMDLINE_LINUX_DEFUALT="quiet intel_iommu=on"
 ```
 
@@ -37,6 +37,8 @@ You can optionally prevent root login by setting `PermitRootLogin` to `No`. On t
 First we need to make the VM that will be the host for docker. While I am aware that Proxmox supports LXC contianers, I wanted to learn more about Docker. This is the reason I chose to use Docker inside a VM. 
 
 The Host OS for the VM is Debian. I chose debian becuase it was what the guide I was watching was doing. However, debian is a good choice because its pretty bare-bones but it widely suported. 
+
+### Binding the SMB Share
 
 After Debian was installed I made sure to set a static IP in my DHCP server and make a Local DNS record for this VM. Then I copied my ssh key and disabled SSH w/ password. Next I installed a few utilites (cifs-uitls, curl, ca-certificates) using apt. These utilites will allow me to mount my Samba Share from TrueNAS when the VM boots. 
 
@@ -88,7 +90,11 @@ Once we have these files, we are ready to mount the Network Share. We are going 
    - `_netdev`: ensures that we have networking before this atempts to run
    - `x-systemd.after=wait-for-ping.service`: our custom service that prevents the VM from finishing boot until we can ping our NAS. This ensures that we always have our NAS for our docker containers.
 
-Now we need to reboot for the drive to be mounted. Now we can install Docker. For info on how to install we can go to the [docker installer](https://docs.docker.com/engine/install/debian/). We will ensure that there are no conflicting packages using the following command:
+Now we need to reboot for the drive to be mounted. Now we can install Docker. 
+
+### Installing and Configuring Docker
+
+For info on how to install we can go to the [docker installer](https://docs.docker.com/engine/install/debian/). We will ensure that there are no conflicting packages using the following command:
 
 ```bash
 sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-doc podman-docker containerd runc | cut -f1)
@@ -127,3 +133,6 @@ Once apt is complete we just need to verify that it works by running the hello w
 sudo docker run hello-world         # Runs the Hello World container
 sudo usermod -aG docker <your-user> # Adds your user the docker group
 ```
+
+***
+Return to [Readme](./README.md)

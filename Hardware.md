@@ -58,3 +58,6 @@ chmod +x ./*                          # Made any file in this dir executable
 ./sas2flash -list                     # Verify that you have no BIOS/UEFI
 ```
 When we run `lsiutil` on `<your-port-number>` you will be taken through a series of prompts. Essentially, you want to leave everything blank except when they ask yes or no questions. You will generally answer 'No'. This will write an empty BIOS/UEFI to their respective sections effectively deleting the BIOS/UEFI. The reason you would say 'no' when it asks if you want to save is up to personal preference; if you want to save the BIOS/UEFI ROM you can, I just saw no need to. Now my boot times are back to normal.
+
+***
+Return to [Readme](./README.md)
