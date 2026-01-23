@@ -167,3 +167,43 @@ I would reccomend setting your PUID/GUID to be your user profile, it will make a
 
 ***
 Return to [Readme](./README.md)
+
+## Wireguard
+
+Like a lot of the other tools I run, you can follow [this guide by Jeff Geerling](https://www.youtube.com/watch?v=5NJ6V8i1Xd8) on Youtube. These are the steps that I followed. 
+
+
+### Carrier Grade - Network Address Translation (CG-NAT)
+First, the main thing that I needed to check is to see if I was behind CG-NAT or Carrier Grade - Network Address Translation. In other words, is my IP accessable from anywhere in the world or is my IP address just my ISP's that they then forward to me. To find out, we can use a common network tool called `traceroute`. On Windows, you would call the `tracert` command instead. Before you can do that, you need to know what your IP address is. You can use websites like [icanhazip](icanhazip.com) or [IPChicken](ipchicken.com) to get your current public IP. Then you can run `traceroute` on your IP while being on your local network. 
+
+![Example of Traceroute](./img/Tracert_example.png)
+
+If you are ***NOT*** behind CG-NAT, the output should look like the image above. (The above image is just an example with bogus information. When I ran Tracert on dns.google I had to make 16 hops.) If you ***ARE*** behind CG-NAT you will have multiple hops even though you are on your home network. Unfortunatly, if you are behind CG-NAT you will not be able to use Wireguard. There may be other solutions like [Tailscale](https://tailscale.com/).
+
+### Wireguard Config
+
+So I lied a little bit. While Wireguard is the underlying VPN that I use, *technically*, I'm running PiVPN. It's usable on any Debian based os (Like PiOS). First things first, download and run the install script: 
+
+```bash
+curl -L https://install.pivpn.io | bash
+```
+
+This will drop you into an installer just follow the instructions in the isntaller. Main things you should be paying attention to is using the Static IP that you set on this device at the begining. PiVPN will ask you if you are using a DHCP Reservation. In my case I said yes since I set the IP in my DHCP server. Just ensure that you have a static IP otherwise there will be a lot of troubleshooting later. 
+
+Next, you are going to get to the `Installation Mode` Screen. This is where you will select Wireguard. The main reason we chose Wireguard as opposed to OpenVPN is becuase it is newer, more lightweight, and more secure. 
+
+The other thing you would want to ensure is to set your DNS server to be your Pi-Hole instance. This way we can guarentee that traffic that is coming from the outside world is getting DNS through Pi-Hole rather than some other DNS provided. This is the main reason why we are installing wireguard in the first place. A benift is also that I have access to all of my services, but the primary service I want outside my home network is ad/spyware blocking.
+
+Next, you want to make sure that when you get to the `Public IP or DNS` page you use the [DuckDNS](#dynamic-dns-with-duckdns) subdomain that you set up earlier. This will ensure that the IP is always up to date. Previously, I did not have DuckDNS set up and since my Public IP address is not Static, I would have to go into my configuration settings and manually change my IP address. 
+
+Finally, you are going to have to set up port forwarding. ***DO THIS AT YOUR OWN***. Setting up port forwarding is different in every router but essentially you will need to take set the UDP port that you set (default is 51820) in the installer and bind it to the IP address of the PiVPN. 
+
+### Configuring your devices
+
+You will need a client profile for each device you would like to connect. You will log back into the computer running PiVPN and run the following command:
+
+```bash
+pivpn add
+```
+
+It will then ask for a name for the client. I reccomend using the following syntax: `user-machine`. Then PiVPN will save the config in `/home/<your-user-id>/configs`. If the device is a laptop, you can `scp` it down from the server to that device. If the device is a mobile device then you can run the cmd `pivpn -qr`. It will then ask for which config you would like to make a qr code. Finally it will show you the qr code for your mobile device to scan. 

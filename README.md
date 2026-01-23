@@ -24,3 +24,12 @@ These are a list of Services that I may add in the future:
    - Immich
    - Opencloud
    - TimeMachine Backup
+
+## Sections
+
+To learn more about my Homelab here are the various files that have explantions:
+
+   - [Hardware](Hardware.md)
+   - [Network](Network.md)
+   - [Virtualization/Containerization](Virtualization-Containerizaion.md)
+   - [Services](Services.md)
