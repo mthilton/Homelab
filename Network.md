@@ -1,14 +1,14 @@
-# Network Stack 
+# Network Stack
 
-The first thing I want to talk about is the network stack. I've learned that homelabbing is like 70% services and 30% networking. Without the network there is no way for any of these services to communicate. 
+The first thing I want to talk about is the network stack. I've learned that homelabbing is like 70% services and 30% networking. Without the network there is no way for any of these services to communicate.
 
 ![Network Diagram](./img/NetworkDiagram.png "Network Diagram")
 
-I have internet coming from the ISP piped directly to my router. Then from the router I go directly into an unmanaged 2.5 Gig switch. This connects my two computers and two server to the internet. All links are 2.5 Gig links except for the Pi and one from the [9020](./Hardware.md#dell). DNS is handled by [Pi-Hole](#DNS_Stack) and [Unbound](#DNS_Stack). DHCP is handled by [Windows Server 2022](#WindowsServer). In order to access all of my services, I use [Nginx](#Nginx) to route all of my service traffic to the proper endpoint. Finally, my mobile devices, such as my phone and laptop, are tunneled in though a private [WireGuard Virtual Private Network](#Wireguard). 
+I have internet coming from the ISP piped directly to my router. Then from the router I go directly into an unmanaged 2.5 Gig switch. This connects my two computers and two server to the internet. All links are 2.5 Gig links except for the Pi and one from the [9020](./Hardware.md#dell). DNS is handled by [Pi-Hole](#dns-stack) and [Unbound](#dns-stack). DHCP is handled by [Windows Server 2022](#dhcp-servers). In order to access all of my services, I use [Nginx](Services.md#Nginx) to route all of my service traffic to the proper endpoint. Finally, my mobile devices, such as my phone and laptop, are tunneled in though a private [WireGuard Virtual Private Network](#wireguard).
 
 ## DNS Stack
 
-In my homelab I have a different DNS's running. The primary DNS is Pi-Hole, an ad-blocking DNS Server that sinks known ad cdn domains. Since the requests for these sites never reach the internet, the website/program is unable to load their ad. Then to handle all requests that are not in the DNS cache we use Unbound. This is a Recursive DNS that we seek out the Authoritative Name Server for the requested Name. We could use Google or Cloudflares DNS server for unknown names but using Unbound will prevent those services from creating profiles on our searches. Finally, we use DuckDNS as our dynamic DNS provider. The main reason I chose this is becuase I was not ready to purchase a domain and use Cloudflare's DDNS service to provide real valid SSL certificates for the Names that I create for the different services on my homelab. 
+In my homelab I have a different DNS's running. The primary DNS is Pi-Hole, an ad-blocking DNS Server that sinks known ad cdn domains. Since the requests for these sites never reach the internet, the website/program is unable to load their ad. Then to handle all requests that are not in the DNS cache we use Unbound. This is a Recursive DNS that we seek out the Authoritative Name Server for the requested Name. We could use Google or Cloudflares DNS server for unknown names but using Unbound will prevent those services from creating profiles on our searches. Finally, we use DuckDNS as our dynamic DNS provider. The main reason I chose this is becuase I was not ready to purchase a domain and use Cloudflare's DDNS service to provide real valid SSL certificates for the Names that I create for the different services on my homelab.
 
 ### Pi-Hole Configuration
 
@@ -25,20 +25,22 @@ pihole -a -p <password>
 ```
 
 To update Pi-Hole:
+
 ```bash
 pihole -up
 ```
 
 To update Pi-Hole's blocklist:
+
 ```bash
 pihole -g
 ```
 
-Assuming that [Unbound](#unbound_configuration) is already installed and configured, we can go into the admin panel and change the upstream DNS server from whatever was set in the installer to our local Unbound instance. Since we installed both pi-hole and unbound on bare-metal we can just use the address `127.0.0.1#5335`.
+Assuming that [Unbound](#unbound-configuration) is already installed and configured, we can go into the admin panel and change the upstream DNS server from whatever was set in the installer to our local Unbound instance. Since we installed both pi-hole and unbound on bare-metal we can just use the address `127.0.0.1#5335`.
 
 ### Unbound Configuration
 
-For the most part, you can follow [this guide](https://docs.pi-hole.net/guides/dns/unbound/) on the Pi-Hole Docs website; this will help better understand what a Recursive DNS server does but in short it goes and finds who knows what the IP of a given Domain Name resolves to. The Recursive DNS will go an ask the Autoritative Domain Name Server (the server/s that hold records of TLDs like .com, .net, .org, etc) who the domain belongs to or who may know who the domain belongs to. From their it will recursivly go down until it finds the IP and brings it back up. Typically your router would be set to something like 8.8.8.8 (Google's DNS) or 1.1.1.1 (Maintianed by Cloudflare) or even 9.9.9.9 (Quad9 DNS) for this sort of resolution. 
+For the most part, you can follow [this guide](https://docs.pi-hole.net/guides/dns/unbound/) on the Pi-Hole Docs website; this will help better understand what a Recursive DNS server does but in short it goes and finds who knows what the IP of a given Domain Name resolves to. The Recursive DNS will go an ask the Autoritative Domain Name Server (the server/s that hold records of TLDs like .com, .net, .org, etc) who the domain belongs to or who may know who the domain belongs to. From their it will recursivly go down until it finds the IP and brings it back up. Typically your router would be set to something like 8.8.8.8 (Google's DNS) or 1.1.1.1 (Maintianed by Cloudflare) or even 9.9.9.9 (Quad9 DNS) for this sort of resolution.
 
 The Main reason we need this in addition to Pi-Hole is that Pi-holes job is just to cache DNS queries, sinking the domains we ask it to ignore for ad-blocking/privacy purposes. Pi-Hole itself will not resolve DNS queries if it does not know where they are. That is where unbound comes into play. (or any of the other upstream DNS' I mentioned previously.)
 
@@ -141,7 +143,7 @@ A dynamic DNS provider will provide us with two things that will help us in the 
 
 ### Establishing our Domain
 
-The first thing we need to do is register an account on DuckDNS, luckily we can just sign in with github or a number of services. Once you have an account, make sure to register a subdomain. On the free teir, we get access to 5 subdomains. The main drawback to a service like DuckDNS is we are tied to their domain. If we then want to add our own subdomains to the subdomain that DuckDNS provides (IE: `pihole.<your-subdomain>.duckdns.org`) your URLs look pretty long. An alternative is to purchase your own domain through something like Cloudflare. The upside is you have more control over your Domain, but the downside is that Cloudflare is not free and neither is your domain. They arn't terribly expensive, but its just another thing to deal with. Now that we have both your Subdomain and your token we need to update your current IP. 
+The first thing we need to do is register an account on DuckDNS, luckily we can just sign in with github or a number of services. Once you have an account, make sure to register a subdomain. On the free teir, we get access to 5 subdomains. The main drawback to a service like DuckDNS is we are tied to their domain. If we then want to add our own subdomains to the subdomain that DuckDNS provides (IE: `pihole.<your-subdomain>.duckdns.org`) your URLs look pretty long. An alternative is to purchase your own domain through something like Cloudflare. The upside is you have more control over your Domain, but the downside is that Cloudflare is not free and neither is your domain. They arn't terribly expensive, but its just another thing to deal with. Now that we have both your Subdomain and your token we need to update your current IP.
 
 ### Keeping your IP up-to-date
 
@@ -170,11 +172,11 @@ Return to [Readme](./README.md)
 
 ## Wireguard
 
-Like a lot of the other tools I run, you can follow [this guide by Jeff Geerling](https://www.youtube.com/watch?v=5NJ6V8i1Xd8) on Youtube. These are the steps that I followed. 
-
+Like a lot of the other tools I run, you can follow [this guide by Jeff Geerling](https://www.youtube.com/watch?v=5NJ6V8i1Xd8) on Youtube. These are the steps that I followed.
 
 ### Carrier Grade - Network Address Translation (CG-NAT)
-First, the main thing that I needed to check is to see if I was behind CG-NAT or Carrier Grade - Network Address Translation. In other words, is my IP accessable from anywhere in the world or is my IP address just my ISP's that they then forward to me. To find out, we can use a common network tool called `traceroute`. On Windows, you would call the `tracert` command instead. Before you can do that, you need to know what your IP address is. You can use websites like [icanhazip](icanhazip.com) or [IPChicken](ipchicken.com) to get your current public IP. Then you can run `traceroute` on your IP while being on your local network. 
+
+First, the main thing that I needed to check is to see if I was behind CG-NAT or Carrier Grade - Network Address Translation. In other words, is my IP accessable from anywhere in the world or is my IP address just my ISP's that they then forward to me. To find out, we can use a common network tool called `traceroute`. On Windows, you would call the `tracert` command instead. Before you can do that, you need to know what your IP address is. You can use websites like [icanhazip](icanhazip.com) or [IPChicken](ipchicken.com) to get your current public IP. Then you can run `traceroute` on your IP while being on your local network.
 
 ![Example of Traceroute](./img/Tracert_example.png)
 
@@ -182,21 +184,21 @@ If you are ***NOT*** behind CG-NAT, the output should look like the image above.
 
 ### Wireguard Config
 
-So I lied a little bit. While Wireguard is the underlying VPN that I use, *technically*, I'm running PiVPN. It's usable on any Debian based os (Like PiOS). First things first, download and run the install script: 
+So I lied a little bit. While Wireguard is the underlying VPN that I use, *technically*, I'm running PiVPN. It's usable on any Debian based os (Like PiOS). First things first, download and run the install script:
 
 ```bash
 curl -L https://install.pivpn.io | bash
 ```
 
-This will drop you into an installer just follow the instructions in the isntaller. Main things you should be paying attention to is using the Static IP that you set on this device at the begining. PiVPN will ask you if you are using a DHCP Reservation. In my case I said yes since I set the IP in my DHCP server. Just ensure that you have a static IP otherwise there will be a lot of troubleshooting later. 
+This will drop you into an installer just follow the instructions in the isntaller. Main things you should be paying attention to is using the Static IP that you set on this device at the begining. PiVPN will ask you if you are using a DHCP Reservation. In my case I said yes since I set the IP in my DHCP server. Just ensure that you have a static IP otherwise there will be a lot of troubleshooting later.
 
-Next, you are going to get to the `Installation Mode` Screen. This is where you will select Wireguard. The main reason we chose Wireguard as opposed to OpenVPN is becuase it is newer, more lightweight, and more secure. 
+Next, you are going to get to the `Installation Mode` Screen. This is where you will select Wireguard. The main reason we chose Wireguard as opposed to OpenVPN is becuase it is newer, more lightweight, and more secure.
 
 The other thing you would want to ensure is to set your DNS server to be your Pi-Hole instance. This way we can guarentee that traffic that is coming from the outside world is getting DNS through Pi-Hole rather than some other DNS provided. This is the main reason why we are installing wireguard in the first place. A benift is also that I have access to all of my services, but the primary service I want outside my home network is ad/spyware blocking.
 
-Next, you want to make sure that when you get to the `Public IP or DNS` page you use the [DuckDNS](#dynamic-dns-with-duckdns) subdomain that you set up earlier. This will ensure that the IP is always up to date. Previously, I did not have DuckDNS set up and since my Public IP address is not Static, I would have to go into my configuration settings and manually change my IP address. 
+Next, you want to make sure that when you get to the `Public IP or DNS` page you use the [DuckDNS](#dynamic-dns-with-duckdns) subdomain that you set up earlier. This will ensure that the IP is always up to date. Previously, I did not have DuckDNS set up and since my Public IP address is not Static, I would have to go into my configuration settings and manually change my IP address.
 
-Finally, you are going to have to set up port forwarding. ***DO THIS AT YOUR OWN***. Setting up port forwarding is different in every router but essentially you will need to take set the UDP port that you set (default is 51820) in the installer and bind it to the IP address of the PiVPN. 
+Finally, you are going to have to set up port forwarding. ***DO THIS AT YOUR OWN RISK***. Setting up port forwarding is different in every router but essentially you will need to take set the UDP port that you set (default is 51820) in the installer and bind it to the IP address of the PiVPN.
 
 ### Configuring your devices
 
@@ -206,4 +208,47 @@ You will need a client profile for each device you would like to connect. You wi
 pivpn add
 ```
 
-It will then ask for a name for the client. I reccomend using the following syntax: `user-machine`. Then PiVPN will save the config in `/home/<your-user-id>/configs`. If the device is a laptop, you can `scp` it down from the server to that device. If the device is a mobile device then you can run the cmd `pivpn -qr`. It will then ask for which config you would like to make a qr code. Finally it will show you the qr code for your mobile device to scan. 
+It will then ask for a name for the client. I reccomend using the following syntax: `user-machine`. Then PiVPN will save the config in `/home/<your-user-id>/configs`. If the device is a laptop, you can `scp` it down from the server to that device. If the device is a mobile device then you can run the cmd `pivpn -qr`. It will then ask for which config you would like to make a qr code. Finally it will show you the qr code for your mobile device to scan.
+
+## DHCP Servers
+
+In order for [iVentoy](./Services.md#iventoy) to function, it needs to either:
+
+1) Be your primary DHCP server
+2) Be configured to be the next-hop DHCP server for PXE booting
+
+I did not want iVentoy to be the primary DHCP server; I was happy letting my router be my DHCP server since I had DHCP reservations for all of the devices in the network. However, my router did not support `next-server` or `bootfile` so I did the next best thing, I rolled my own DHCP server.
+
+### Windows Server with DHCP
+
+> [!NOTE]
+> For more about the configuration of Windows Server 2022, see [the section in Virtualizaion and Contaninerization](./Virtualization-Containerizaion.md) This section will assume you have already read that section.
+
+First you will need to install the DHCP server in Server Manager:
+
+1) Open Server Manager
+2) Navigate to the `Manage` tab in the top right
+3) Select `Add Roles and Features`
+4) Select `Role-based or feature-based installation` and click Next
+5) Select your server from the list and click next
+6) Select `DHCP Server` from the list of roles and click next
+7) Select Install
+
+Once the DHCP server is installed, you open the DHCP Configuration application in the Start menu.
+
+![Windows DHCP Configuration Application](./img/Windows_DHCP.png)
+
+In DHCP Server Manager, we will need to add a `Scope` for IPv4. We can Expand our server until we see the IPv4 and IPv6 Options. Then we are going to right-click on IPv4 and select `New Scope`
+
+![New Scope Example](./img/New_Scope.png)
+
+Follow through the prompts, being sure to set the proper IP addressing ranges and subnet masks. Also be sure to configure DHCP options like IP address of Default Gateway and DNS server. Finally, I chose not to activate the scope right away. This is so I could confirm other configuration settings.
+
+Under your newly created scope, you can add your DHCP reservations under reservations. Once that is complete then we can head over to the `Server Options` section, right-click, then select `Configure Options`.
+
+Here we are going to configure option 66 and 67. Option 66 is Boot Server Host Name, this is the `Next Server` option that iVentoy needs to be forwared DHCP requests. Option 67 is bootfile name which is the `bootfile` option that iVentoy needs. This option tells Windows' DHCP the file that iVentoy will send on port 69 to start the PXE boot process. iVentoy tells us to set this to `iventoy_loader_<iventoy_pxe_port>`. By default `iventoy_pxe_port` is 16000.
+
+Thats it for the Windows DHCP side, everything else regarding PXE will be in the [iVentoy Section](./Services.md#iventoy).
+
+***
+Return to [Readme](./README.md)
