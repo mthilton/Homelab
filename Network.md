@@ -167,9 +167,6 @@ services:
 
 I would reccomend setting your PUID/GUID to be your user profile, it will make access a lot easier.
 
-***
-Return to [Readme](./README.md)
-
 ## Wireguard
 
 Like a lot of the other tools I run, you can follow [this guide by Jeff Geerling](https://www.youtube.com/watch?v=5NJ6V8i1Xd8) on Youtube. These are the steps that I followed.
