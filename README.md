@@ -38,4 +38,13 @@ To learn more about my Homelab here are the various files that have explantions:
 
 ## TODO
 
+These are Task that I would like to complete. Eventually this will move into the issues tab that way I can merge it like a real repo.
+
 - Add section about how to create vm's in proxmox
+- Set up automatic backups for all machines
+- Add SSO with Authilia?
+- Reconfigure raspberry pi to host NPM, Pi-Hole, Unbound, PiVPN, and Authila? all in docker
+- set up GitLab for issue tracking and general repo
+- set up Immich for photo backup on my girlfriend and my's phones
+- Figure out Opencloud
+- Set up a torent pipeline for Jellyfin/Plex
