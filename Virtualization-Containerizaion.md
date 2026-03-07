@@ -56,22 +56,7 @@ pass=<Password-for-Samba-User>
 
 We can save this as a dotfile in the `/root/` directory. Then we can use the following command to make it read-only by root: `chmod 400 /root/path/to/credentials/`. This will prevent anybody from being able to access the password without becoming root.
 
-For the Systemd Script, we want to create a service that will ping our NAS once a second until we actually get a reply. We can make a service called `wait-for-ping.service` in `/etc/systemd/system/`. The contents of this file would be:
-
-```bash
-# /etc/systemd/system/wait-for-ping.service
-[Unit]
-Description=Blocks until it successfully pings <your-NAS-IP>
-After=network-online.target
-
-[Service]
-ExecStartPre=/usr/bin/bash -c "while ! ping -c1 <your-NAS-IP>; do sleep 1; done"
-ExecStart=/usr/bin/bash -c "echo good to go"
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-```
+For the Systemd Script, we want to create a service that will ping our NAS once a second until we actually get a reply. We can make a service called `wait-for-ping.service` in `/etc/systemd/system/`. [This is the script](scripts/wait-for-ping.service).
 
 Once we have these files, we are ready to mount the Network Share. We are going to update our `/etc/fstab` file that is responsible for getting drives mounted in the right place. At the end of your `fstab` file you will add the following:
 
