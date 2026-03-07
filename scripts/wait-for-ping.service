@@ -1,0 +1,12 @@
+# /etc/systemd/system/wait-for-ping.service
+[Unit]
+Description=Blocks until it successfully pings <your-NAS-IP>
+After=network-online.target
+
+[Service]
+ExecStartPre=/usr/bin/bash -c "while ! ping -c1 <your-NAS-IP>; do sleep 1; done"
+ExecStart=/usr/bin/bash -c "echo good to go"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
