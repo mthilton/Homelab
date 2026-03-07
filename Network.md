@@ -217,12 +217,12 @@ In order for [iVentoy](./Services.md#iventoy) to function, it needs to either:
 1) Be your primary DHCP server
 2) Be configured to be the next-hop DHCP server for PXE booting
 
-I did not want iVentoy to be the primary DHCP server; I was happy letting my router be my DHCP server since I had DHCP reservations for all of the devices in the network. However, my router did not support `next-server` or `bootfile` so I did the next best thing, I rolled my own DHCP server.
+I did not want iVentoy to be the primary DHCP server; I was happy letting my router be my DHCP server since I had DHCP reservations for all of the devices in the network. However, my router does not support `next-server` or `bootfile`. The next best thing would be to self-host a pfSense or openSense router. I want to avoid this primarily becuase I already bought the router and I don't think virutilzing my primary router is a good idea from a reliablity standpoint. Furthermore, the router I have does not support openWRT or DDWRT, so I cannot even flash it to support the features I need. So I did the next best thing, I rolled my own DHCP server.
 
 ### Windows Server with DHCP
 
 > [!NOTE]
-> For more about the configuration of Windows Server 2022, see [the section in Virtualizaion and Contaninerization](./Virtualization-Containerizaion.md) This section will assume you have already read that section.
+> For more about the configuration of Windows Server 2022, see [the section in Virtualizaion and Contaninerization](./Virtualization-Containerizaion.md#windows-virtualization-in-proxmox) This section will assume you have already read that section.
 
 First you will need to install the DHCP server in Server Manager:
 
